@@ -1,0 +1,59 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Luca Stefani <luca.stefani.ge1@gmail.com>
+Date: Sat, 7 Sep 2024 11:49:03 +0200
+Subject: [PATCH] Add support for prop overrides
+
+The format of the overrides is KEY=VALUE
+Where KEY is one of the dict keys used in config
+https://cs.android.com/android/platform/superproject/main/+/main:build/soong/scripts/gen_build_prop.py
+And VALUE is the value you want take over.
+
+An example:
+PRODUCT_BUILD_PROP_OVERRIDES += \
+    BuildDesc="jfltevzw-user 4.2.2 JDQ39 I545VRUAMDK release-keys" \
+    BuildFingerprint=Verizon/jfltevzw/jfltevzw:4.2.2/JDQ39/I545VRUAMDK:user/release-keys \
+    DeviceName=jfltevzw \
+    DeviceProduct=jfltevzw \
+    SystemDevice=jfltevzw \
+    SystemName=jfltevzw
+
+Change-Id: Ib44a3bb573d08d492acc092e104cb4f687f3b168
+
+diff --git a/scripts/gen_build_prop.py b/scripts/gen_build_prop.py
+index d4652ec61ea5f7cac3c69567ff6f8c76b1c0970d..5549131257f35f3500def1f7176afbdefbd3b976 100644
+--- a/scripts/gen_build_prop.py
++++ b/scripts/gen_build_prop.py
+@@ -45,6 +45,24 @@ def get_build_keys(product_config):
+     return "test-keys"
+   return "release-keys"
+ 
++def override_config(config):
++  if "PRODUCT_BUILD_PROP_OVERRIDES" in config:
++    current_key = None
++    props_overrides = {}
++
++    for var in config["PRODUCT_BUILD_PROP_OVERRIDES"]:
++      if "=" in var:
++        current_key, value = var.split("=")
++        props_overrides[current_key] = value
++      else:
++        props_overrides[current_key] += f" {var}"
++
++    for key, value in props_overrides.items():
++      if key not in config:
++        print(f"Key \"{key}\" isn't a valid prop override", file=sys.stderr)
++        sys.exit(1)
++      config[key] = value
++
+ def parse_args():
+   """Parse commandline arguments."""
+   parser = argparse.ArgumentParser()
+@@ -100,6 +118,8 @@ def parse_args():
+   if args.build_thumbprint_file:
+     config["BuildThumbprint"] = args.build_thumbprint_file.read().strip()
+ 
++  override_config(config)
++
+   append_additional_system_props(args)
+   append_additional_vendor_props(args)
+   append_additional_product_props(args)

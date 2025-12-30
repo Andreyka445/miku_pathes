@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Julian Veit <claymore1298@gmail.com>
+Date: Tue, 4 May 2021 07:57:50 +0200
+Subject: [PATCH] cleanbuild: add *.zip.sha256sum to installclean_files
+
+Change-Id: I91f92349423eeb99e7e4521f6239baabe8b1314c
+
+diff --git a/ui/build/cleanbuild.go b/ui/build/cleanbuild.go
+index 723d90fa3fd691ebe7ab86c15308221457225782..a9594c361d71ba6472372515ef120e57a83addef 100644
+--- a/ui/build/cleanbuild.go
++++ b/ui/build/cleanbuild.go
+@@ -125,6 +125,7 @@ func installClean(ctx Context, config Config) {
+ 		hostCommonOut("obj/PACKAGING"),
+ 		productOut("*.img"),
+ 		productOut("*.zip"),
++		productOut("*.zip.sha256sum"),
+ 		productOut("android-info.txt"),
+ 		productOut("misc_info.txt"),
+ 		productOut("apex"),

@@ -1,0 +1,20 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jarl-Penguin <jarlpenguin@outlook.com>
+Date: Tue, 20 Jul 2021 15:31:28 +0300
+Subject: [PATCH] cleanbuild: Add `recovery_kernel` to installclean files
+
+Signed-off-by: Jarl-Penguin <jarlpenguin@outlook.com>
+Change-Id: I89b7093be92cb22a223033f9a7269624f7293c35
+
+diff --git a/ui/build/cleanbuild.go b/ui/build/cleanbuild.go
+index a9594c361d71ba6472372515ef120e57a83addef..08b312d53e38751d2d539f04a24c9a94abfe3428 100644
+--- a/ui/build/cleanbuild.go
++++ b/ui/build/cleanbuild.go
+@@ -131,6 +131,7 @@ func installClean(ctx Context, config Config) {
+ 		productOut("apex"),
+ 		productOut("kernel"),
+ 		productOut("kernel-*"),
++		productOut("recovery_kernel"),
+ 		productOut("data"),
+ 		productOut("skin"),
+ 		productOut("obj/NOTICE_FILES"),
