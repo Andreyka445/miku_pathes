@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Michael Bestas <mkbestas@gmail.com>
+Date: Tue, 15 Apr 2025 18:56:13 +0300
+Subject: [PATCH] releasetools: Handle build description not ending in -keys
+
+New motorola devices have extra text after -keys
+
+Issue: calyxos#3172
+Change-Id: Ic6700b61be41f96be263c9c9363ecd050aa019eb
+
+diff --git a/tools/releasetools/sign_target_files_apks.py b/tools/releasetools/sign_target_files_apks.py
+index 2fa3fb5e89bf43a963f9c97c0ca3f3c0c16786ca..f31f761c96b562f5496066a4ff54519617a08afc 100755
+--- a/tools/releasetools/sign_target_files_apks.py
++++ b/tools/releasetools/sign_target_files_apks.py
+@@ -1186,8 +1186,10 @@ def RewriteProps(data):
+         value = "/".join(pieces)
+       elif key == "ro.build.description":
+         pieces = value.split()
+-        assert pieces[-1].endswith("-keys")
+-        pieces[-1] = EditTags(pieces[-1])
++        for i in range(len(pieces) - 1, -1, -1):
++            if pieces[i].endswith("-keys"):
++                pieces[i] = EditTags(pieces[i])
++                break
+         value = " ".join(pieces)
+       elif key.startswith("ro.") and key.endswith(".build.tags"):
+         value = EditTags(value)
