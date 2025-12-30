@@ -1,0 +1,77 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Aaron Kling <webgeek1234@gmail.com>
+Date: Wed, 16 Apr 2025 20:59:01 -0500
+Subject: [PATCH] soong: Support prebuilt_kernel_headers
+
+This depends on a kernel headers tarball path being passed in
+TARGET_PREBUILT_KERNEL_HEADERS, in the style that the kleaf kernel
+platform build generates.
+
+Change-Id: Ib82659fa44ef221e73d0d129daafbaae6bad87a2
+Signed-off-by: fukiame <fukiame@proton.me>
+
+diff --git a/build/soong/Android.bp b/build/soong/Android.bp
+index e7471c972c362289fe295d356db5653da6c628af..9b2fa46d6c851a38ea7460aa24b746e54bf88c2c 100644
+--- a/build/soong/Android.bp
++++ b/build/soong/Android.bp
+@@ -37,6 +37,22 @@ miku_generator {
+     dep_files: [ "Makefile", "include/**/*", "arch/$(KERNEL_ARCH)/include/**/*", "techpack/audio/include/**/*"],
+ }
+ 
++miku_generator {
++    name: "prebuilt_kernel_includes",
++
++    // The headers extract command
++    cmd: "mkdir -p $(KERNEL_BUILD_OUT_PREFIX)$(genDir) && gzip -d < $(TARGET_PREBUILT_KERNEL_HEADERS) | tar -x -C $(KERNEL_BUILD_OUT_PREFIX)$(genDir) && vendor/miku/tools/clean_headers.sh $(KERNEL_BUILD_OUT_PREFIX)$(genDir)",
++
++    // Directories that can be imported by a cc_* module generated_headers property
++    export_include_dirs: [
++        "usr/audio/include/uapi",
++        "usr/include",
++        "usr/include/audio",
++        "usr/include/audio/include/uapi",
++        "usr/techpack/audio/include",
++    ],
++}
++
+ bootstrap_go_package {
+     name: "soong-miku-mkdir",
+     pkgPath: "miku/soong/mkdir",
+@@ -61,6 +77,14 @@ cc_defaults {
+     recovery_available: true,
+ }
+ 
++cc_defaults {
++    name: "prebuilt_kernel_header_defaults",
++    generated_headers: ["prebuilt_kernel_includes"],
++    export_generated_headers: ["prebuilt_kernel_includes"],
++    vendor_available: true,
++    recovery_available: true,
++}
++
+ cc_library_headers {
+     name: "generated_kernel_headers",
+     defaults: ["generated_kernel_header_defaults"],
+@@ -310,3 +334,8 @@ surfaceflinger_qcom_extensions {
+         },
+     },
+ }
++
++cc_library_headers {
++    name: "prebuilt_kernel_headers",
++    defaults: ["prebuilt_kernel_header_defaults"],
++}
+diff --git a/config/BoardConfigSoong.mk b/config/BoardConfigSoong.mk
+index 264e2ea50091130da859f2dabdf2c85a6cd41b3e..a689f34981d32bcef56f74cccedae50d260e22bb 100644
+--- a/config/BoardConfigSoong.mk
++++ b/config/BoardConfigSoong.mk
+@@ -15,7 +15,8 @@ EXPORT_TO_SOONG := \
+     KERNEL_MAKE_FLAGS \
+     PATH_OVERRIDE_SOONG \
+     TARGET_KERNEL_CONFIG \
+-    TARGET_KERNEL_SOURCE
++    TARGET_KERNEL_SOURCE \
++    TARGET_PREBUILT_KERNEL_HEADERS
+ 
+ # Setup SOONG_CONFIG_* vars to export the vars listed above.
+ # Documentation here:

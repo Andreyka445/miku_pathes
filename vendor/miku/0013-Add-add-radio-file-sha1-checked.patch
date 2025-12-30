@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: herodhb <290183441@qq.com>
+Date: Thu, 25 Jan 2024 01:08:23 +0800
+Subject: [PATCH] Add add-radio-file-sha1-checked.
+
+
+diff --git a/build/core/utils.mk b/build/core/utils.mk
+index 4b29233ac339fdf57dcea079dc794a055ee254b9..422d8a9e5ba9d4def98b7d6bdca520838b84fd5b 100644
+--- a/build/core/utils.mk
++++ b/build/core/utils.mk
+@@ -201,3 +201,12 @@ $(strip \
+   $(if $(strip $(acn)),true,) \
+ )
+ endef
++
++# $(call add-radio-file-sha1-checked,path,sha1)
++define add-radio-file-sha1-checked
++  $(eval path := $(LOCAL_PATH)/$(1))
++  $(eval sha1 := $(shell sha1sum "$(path)" | cut -d" " -f 1))
++  $(if $(filter $(sha1),$(2)),
++    $(call add-radio-file,$(1)),
++    $(error $(path) SHA1 mismatch ($(sha1) != $(2))))
++endef
+\ No newline at end of file

@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Aaron Kling <webgeek1234@gmail.com>
+Date: Thu, 17 Apr 2025 12:11:12 -0500
+Subject: [PATCH] kernel: Stop warnings for prebuilt kernel platform
+
+If both prebuilt kernel and prebuilt kernel headers are provided, assume
+that they match.
+
+Change-Id: I8818659bd4642aa20260ff638d4a0c3f2b56a463
+
+diff --git a/build/tasks/kernel.mk b/build/tasks/kernel.mk
+index c030553d1fb6a8ea534e06995f5c1232e72628ce..99892456507259794e5c5636450ca7817311c638 100644
+--- a/build/tasks/kernel.mk
++++ b/build/tasks/kernel.mk
+@@ -67,6 +67,8 @@
+ #
+ #   TARGET_FORCE_PREBUILT_KERNEL       = Optional, use TARGET_PREBUILT_KERNEL even if
+ #                                          kernel sources are present
++#   TARGET_PREBUILT_KERNEL_HEADERS     = Optional, if this is set, don't warn about prebuilt
++#                                          kernel because headers should match
+ #   TARGET_WITH_KERNEL_SU              = Optional, if true, build kernel with KernelSU
+ #
+ #   TARGET_MERGE_DTBS_WILDCARD         = Optional, limits the .dtb files used to generate the
+@@ -137,13 +139,15 @@ ifeq "$(wildcard $(KERNEL_SRC) )" ""
+     endif
+ 
+     ifneq ($(HAS_PREBUILT_KERNEL),)
+-        $(warning ***************************************************************)
+-        $(warning * Using prebuilt kernel binary instead of source              *)
+-        $(warning * THIS IS DEPRECATED, AND IS NOT ADVISED.                     *)
+-        $(warning * Please configure your device to download the kernel         *)
+-        $(warning * source repository to $(KERNEL_SRC))
+-        $(warning * for more information                                        *)
+-        $(warning ***************************************************************)
++        ifeq ($(TARGET_PREBUILT_KERNEL_HEADERS),)
++            $(warning ***************************************************************)
++            $(warning * Using prebuilt kernel binary instead of source              *)
++            $(warning * THIS IS DEPRECATED, AND IS NOT ADVISED.                     *)
++            $(warning * Please configure your device to download the kernel         *)
++            $(warning * source repository to $(KERNEL_SRC))
++            $(warning * for more information                                        *)
++            $(warning ***************************************************************)
++        endif
+         FULL_KERNEL_BUILD := false
+         KERNEL_BIN := $(TARGET_PREBUILT_KERNEL)
+     else

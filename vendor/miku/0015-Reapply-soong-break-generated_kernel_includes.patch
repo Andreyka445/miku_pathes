@@ -1,0 +1,20 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fukiame <fukiame@proton.me>
+Date: Thu, 11 Dec 2025 00:58:04 +0700
+Subject: [PATCH] Reapply "soong: break generated_kernel_includes"
+
+This reverts commit f77e6483a5f2640f25620e513d9168d77bcbf231.
+
+diff --git a/build/soong/Android.bp b/build/soong/Android.bp
+index 9b2fa46d6c851a38ea7460aa24b746e54bf88c2c..2b5680f1f6d05612e6463a1d236626a08009884d 100644
+--- a/build/soong/Android.bp
++++ b/build/soong/Android.bp
+@@ -21,7 +21,7 @@ miku_generator {
+     name: "generated_kernel_includes",
+ 
+     // The headers make command
+-    cmd: "$(PATH_OVERRIDE_SOONG) $(KERNEL_MAKE_CMD) $(KERNEL_MAKE_FLAGS) -C $(TARGET_KERNEL_SOURCE) O=$(KERNEL_BUILD_OUT_PREFIX)$(genDir) ARCH=$(KERNEL_ARCH) $(KERNEL_CROSS_COMPILE) headers_install && vendor/miku/tools/clean_headers.sh $(KERNEL_BUILD_OUT_PREFIX)$(genDir)",
++    cmd: ":",
+ 
+     // Directories that can be imported by a cc_* module generated_headers property
+     export_include_dirs: [
