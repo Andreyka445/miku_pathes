@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: fukiame <fukiame@proton.me>
+Date: Tue, 4 Jun 2024 15:43:27 +0700
+Subject: [PATCH] sepolicy: inherit local libperfmgr sepolicy
+
+
+diff --git a/SEPolicy.mk b/SEPolicy.mk
+index e4de3f5ac82d7822f2c97bd202a510d0c5025bf8..79a7e3bd095610c8ad316184c767f12a0305e23b 100644
+--- a/SEPolicy.mk
++++ b/SEPolicy.mk
+@@ -1,7 +1,7 @@
+ # Board specific SELinux policy variable definitions
+ MTK_SEPOLICY_PATH := device/mediatek/sepolicy_vndr
+ 
+-include device/lineage/sepolicy/libperfmgr/sepolicy.mk
++include $(MTK_SEPOLICY_PATH)/libperfmgr/sepolicy.mk
+ 
+ ifeq ($(BOARD_MTK_SEPOLICY_IS_LEGACY), true)
+ # Build with broken namespaces
+diff --git a/libperfmgr/sepolicy.mk b/libperfmgr/sepolicy.mk
+index 46a7497ea2d0229b3bae1f801ce79bb9f3be4c06..e38fc0be7b36b26a7b70dbe8ed6fe4cbc48c0556 100644
+--- a/libperfmgr/sepolicy.mk
++++ b/libperfmgr/sepolicy.mk
+@@ -1,2 +1,2 @@
+ BOARD_VENDOR_SEPOLICY_DIRS += \
+-    device/lineage/sepolicy/libperfmgr/vendor
++    $(MTK_SEPOLICY_PATH)/libperfmgr/vendor
