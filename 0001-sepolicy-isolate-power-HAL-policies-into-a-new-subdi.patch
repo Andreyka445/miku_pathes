@@ -1,0 +1,55 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Han Sol Jin <hansol@hansol.ca>
+Date: Fri, 17 May 2024 20:13:26 -0700
+Subject: [PATCH] sepolicy: isolate power HAL policies into a new subdirectory
+
+This makes power HAL policies opt-in. Primary reason to do this is to
+avoid breaking Pixel builds, which have several conflicting policies.
+
+Change-Id: I66197a7145d424984acf31fe07d282d6e5bcdc8b
+
+diff --git a/libperfmgr/sepolicy.mk b/libperfmgr/sepolicy.mk
+new file mode 100644
+index 0000000000000000000000000000000000000000..46a7497ea2d0229b3bae1f801ce79bb9f3be4c06
+--- /dev/null
++++ b/libperfmgr/sepolicy.mk
+@@ -0,0 +1,2 @@
++BOARD_VENDOR_SEPOLICY_DIRS += \
++    device/lineage/sepolicy/libperfmgr/vendor
+diff --git a/libperfmgr/vendor/hal_power_default.te b/libperfmgr/vendor/hal_power_default.te
+new file mode 100644
+index 0000000000000000000000000000000000000000..31692371555eb8cade5f1e6b0b7b7482306fb8e1
+--- /dev/null
++++ b/libperfmgr/vendor/hal_power_default.te
+@@ -0,0 +1,7 @@
++# To do powerhint on nodes defined in powerhint.json
++allow hal_power_default cgroup:dir search;
++allow hal_power_default cgroup:file rw_file_perms;
++allow hal_power_default sysfs_devices_system_cpu:file rw_file_perms;
++
++# To get/set powerhal state property
++set_prop(hal_power_default, vendor_power_prop)
+diff --git a/libperfmgr/vendor/property.te b/libperfmgr/vendor/property.te
+new file mode 100644
+index 0000000000000000000000000000000000000000..df317c6959da5d5e6952a2cd7ebb965ad5ba4c18
+--- /dev/null
++++ b/libperfmgr/vendor/property.te
+@@ -0,0 +1,2 @@
++# Power HAL
++vendor_public_prop(vendor_power_prop);
+diff --git a/libperfmgr/vendor/property_contexts b/libperfmgr/vendor/property_contexts
+new file mode 100644
+index 0000000000000000000000000000000000000000..e37ced21b4ad80a54fa1ff2893492763bf13efca
+--- /dev/null
++++ b/libperfmgr/vendor/property_contexts
+@@ -0,0 +1,2 @@
++# Power HAL
++vendor.powerhal.                   u:object_r:vendor_power_prop:s0
+diff --git a/libperfmgr/vendor/vendor_init.te b/libperfmgr/vendor/vendor_init.te
+new file mode 100644
+index 0000000000000000000000000000000000000000..f48eff3eab928a19ffbd612947fd914ea4202cd0
+--- /dev/null
++++ b/libperfmgr/vendor/vendor_init.te
+@@ -0,0 +1,2 @@
++# To set powerhal init property
++set_prop(vendor_init, vendor_power_prop)
